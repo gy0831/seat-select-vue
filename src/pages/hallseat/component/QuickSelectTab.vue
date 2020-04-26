@@ -1,4 +1,8 @@
-<!--  -->
+/*
+  @author zenghao0219
+  @description 用于快速选座逻辑实现
+  @updateDate 最后更新时间为:2019-07-22
+*/
 <template>
   <div class='selected'>
     <div class="text">快速选座:</div>
@@ -97,7 +101,6 @@ export default {
         return
       }
       let bestSeatListIndex = 0
-      let secondSeatListIndex = 0
       // 递归每排的最优座位组 找出离中心点最近的最优座位组
       bestSeatList.reduce(function (prev, cur, index, arr) {
         if (Array.isArray(prev)) {
@@ -115,27 +118,10 @@ export default {
         if (z >= prev) {
           return prev
         } else {
-          secondSeatListIndex = bestSeatListIndex
           bestSeatListIndex = index
           return z
         }
       })
-      // 如果不是2的倍数 最佳座位又全是是情侣座
-      if (value % 2 !== 0) {
-        let checkloveSeat = bestSeatList[bestSeatListIndex].every(function (element, index, array) {
-          return element.otherLoveSeatId !== null
-        })
-        // 最佳座位又全是是情侣座
-        if (checkloveSeat) {
-          checkloveSeat = bestSeatList[secondSeatListIndex].every(function (element, index, array) {
-            return element.otherLoveSeatId !== null
-          })
-          if (checkloveSeat) {
-            alert('没有合适的座位~')
-            return
-          }
-        }
-      }
       // 最佳座位中包含情侣座位
       let notEmitSeatArr = []
       // 发送选择事件
@@ -189,6 +175,7 @@ export default {
     // 找到次排是否有快速选择座位数有效的数组 寻找的坐标为 最佳座位根据快速选择座位数 取左右两边正负座位数
     checkSeatMiddle: function (rowSeatList, value) {
       let effectiveSeat = []
+      let existLoveSeat = false
       // 从负到整的值动态值
       let activeValue = value > 2 ? value - 2 : value - 1
       if (value === this.xMax) {
@@ -207,9 +194,16 @@ export default {
         }
         if (iter.nowIcon === iter.soldedIcon || iter.nowIcon === iter.fixIcon) {
           effectiveSeat = []
+          existLoveSeat = false
           continue
         } else {
-          effectiveSeat.push(iter)
+          if (iter.otherLoveSeatId !== null) {
+            existLoveSeat = true
+          }
+          let temp = { ...iter }
+          // 标记此座位的选择规则是中心规则
+          temp.findMethod = '*'
+          effectiveSeat.push(temp)
         }
       }
       if (effectiveSeat.length > value) {
@@ -217,12 +211,30 @@ export default {
         for (let i = 0; i < activeValue; i++) {
           effectiveSeat.pop()
           if (effectiveSeat.length === value) {
-            return effectiveSeat
+            break
           }
           effectiveSeat.shift()
           if (effectiveSeat.length === value) {
-            return effectiveSeat
+            break
           }
+        }
+        // 预检
+        if (this.preCheckSeatMakeEmpty(effectiveSeat)) {
+          return []
+        }
+      } else if (effectiveSeat.length < value) {
+        return []
+      } else {
+      // 预检
+        if (this.preCheckSeatMakeEmpty(effectiveSeat)) {
+          return []
+        }
+      }
+      // 如果最近座位组中存在情侣座
+      // 检查数组内情侣座必须成对出现 否则舍弃
+      if (existLoveSeat) {
+        if (!this.checkLoveSeatIsDouble(effectiveSeat)) {
+          return []
         }
       }
       return effectiveSeat
@@ -233,6 +245,7 @@ export default {
       // 最多允许过道等于3 由于某些影厅 居中的位置不是座位 存在大部分的过道 导致无法选择到最佳座位
       let roadDistance = 3
       let effectiveSeat = []
+      let existLoveSeat = false
       for (let j = 0; j < activeValue; j++) {
         let iter
         if (direction === '-') {
@@ -252,12 +265,49 @@ export default {
         if (iter.nowIcon === iter.soldedIcon || iter.nowIcon === iter.fixIcon) {
           activeValue++
           effectiveSeat = []
+          existLoveSeat = false
           continue
         } else {
-          effectiveSeat.push(iter)
+          if (iter.otherLoveSeatId !== null) {
+            existLoveSeat = true
+          }
+          let temp = { ...iter }
+          temp.findMethod = direction
+          effectiveSeat.push(temp)
+        }
+        if (effectiveSeat.length === value) {
+          // 预检
+          if (this.preCheckSeatMakeEmpty(effectiveSeat)) {
+            activeValue++
+            effectiveSeat.shift()
+            continue
+          }
+        }
+      }
+      // 如果最近座位组中存在情侣座
+      // 检查数组内情侣座必须成对出现 否则舍弃
+      if (existLoveSeat) {
+        if (!this.checkLoveSeatIsDouble(effectiveSeat)) {
+          return []
         }
       }
       return effectiveSeat
+    },
+    checkLoveSeatIsDouble: function (arr) {
+      // 检查数组内必须情侣座是否对出现 否则舍弃
+      var orgSet = new Set()
+      var loveSeatSet = new Set()
+      for (const iterator of arr) {
+        orgSet.add(iterator.id)
+      }
+      for (const iterator of arr) {
+        if (iterator.otherLoveSeatId !== null) {
+          loveSeatSet.add(iterator.otherLoveSeatId)
+        }
+      }
+      let beforelen = orgSet.size
+      let afterlen = new Set([...orgSet, ...loveSeatSet]).size
+      return beforelen === afterlen
     },
     // 根据seatList 生成一个类map的对象 key值为gRow坐标 value值为gRow为key值的数组
     creatSeatMap: function () {
@@ -277,6 +327,103 @@ export default {
         }
       }
       this.seatMap = obj
+    },
+    // 预检座位
+    preCheckSeatMakeEmpty (arr) {
+      let that = this
+      // 开始计算是否留下空位 ------------ 开始
+      let result = arr.every(function (element, index, array) {
+        return that.checkSeat(element, arr)
+      })
+      // 开始计算是否留下空位 ------------ 结束
+      return !result
+    },
+    // 预检每个座位是否会留下空位
+    checkSeat: function (element, selectedSeat) {
+    // 标准为 1.左右侧都必须保留 两格座位 + 最大顺延座位(也就是已选座位减去自身)
+    // 2.靠墙和靠已售的座位一律直接通过
+      const checkNum = 2 + selectedSeat.length - 1
+      const gRowBasic = element.gRow
+      const gColBasic = element.gCol
+      let otherLoveSeatIndex = element.otherLoveSeatIndex
+      if (otherLoveSeatIndex != null) {
+      // 如果是情侣座 不检测
+        return true
+      }
+      // 检查座位左侧
+      let left = this.checkSeatDirection(gRowBasic, gColBasic, checkNum, '-', selectedSeat)
+      // 如果左侧已经检查出是靠着过道直接 返回true
+      if (left === 'special') {
+        return true
+      }
+      // 检查座位右侧
+      let right = this.checkSeatDirection(gRowBasic, gColBasic, checkNum, '+', selectedSeat)
+      if (right === 'special') {
+      // 无论左侧是否是什么状态 检查出右侧靠着过道直接 返回true
+        return true
+      } else if (right === 'normal' && left === 'normal') {
+      // 如果左右两侧都有富裕的座位 返回true
+        return true
+      } else if (right === 'fail' || left === 'fail') {
+      // 如果左右两侧都是不通过检测 返回false
+        return false
+      }
+      return true
+    },
+    // 预检左右侧座位满足规则状态
+    checkSeatDirection: function (gRowBasic, gColBasic, checkNum, direction, selectedSeat) {
+      // 空位个数
+      let emptySeat = 0
+      let x = 1 // 检查位置 只允许在x的位置出现过道,已售,维修
+      for (let i = 1; i <= checkNum; i++) {
+        let iter // 根据 gRow gCol direction 找出检查座位左边按顺序排列的checkNum
+        if (direction === '-') {
+          iter = this.seatList.find((el) => (el.gRow === gRowBasic && el.gCol === gColBasic - i))
+        } else if (direction === '+') {
+          iter = this.seatList.find((el) => (el.gRow === gRowBasic && el.gCol === gColBasic + i))
+        }
+        if (x === i) {
+          if (iter === undefined) {
+          // 过道
+            return 'special'
+          }
+          if (iter.nowIcon === iter.soldedIcon || iter.nowIcon === iter.fixIcon) {
+          // 已售或者维修
+            return 'special'
+          }
+          let checkSelect = false
+          for (const index in selectedSeat) {
+            if (selectedSeat[index].id === iter.id) {
+            // 已选 顺延一位
+              x++
+              checkSelect = true
+              break
+            }
+          }
+          if (checkSelect) {
+            continue
+          }
+        } else {
+          if (iter === undefined) {
+          // 过道
+            return 'fail'
+          }
+          if (iter.nowIcon === iter.soldedIcon ||
+              iter.nowIcon === iter.fixIcon) {
+          // 已售或者维修
+            return 'fail'
+          }
+          for (const index in selectedSeat) {
+            if (selectedSeat[index].id === iter.id) {
+              return 'fail'
+            }
+          }
+        }
+        emptySeat++
+        if (emptySeat >= 2) {
+          return 'normal'
+        }
+      }
     }
   },
   // 生命周期 - 创建完成（可以访问当前this实例）

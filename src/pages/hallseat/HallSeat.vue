@@ -1,3 +1,8 @@
+/*
+  @author zenghao0219
+  @description 座位页面父级组件,控制点击选座,数据加载处理
+  @updateDate 最后更新时间为:2019-04-29
+*/
 <template>
   <div class="wapper">
     <!--头部 开始-->
@@ -35,7 +40,7 @@
          <!--中轴线-->
           <div v-show="seatList.length>0" class="middle-line" :style="{height:seatBoxHeight +'rem',left: middleLine +'rem'}"></div>
           <template v-for="(seatItem,index) in seatList" >
-            <div class="seatClass" @click="clickSeat(index)" :key="seatItem.id" :style="{height:height +'rem',width:width +'rem',
+            <div class="seatClass" @click.prevent="clickSeat(index)" :key="seatItem.id" :style="{height:height +'rem',width:width +'rem',
             top:seatItem.gRow * positionDistin +'rem',left:seatItem.gCol * positionDistin +'rem'}"
             >
               <img class="seatImgClass" :seatId="seatItem.id" :seatIndex="index" :src="seatItem.nowIcon"/>
@@ -100,7 +105,7 @@ export default {
   },
   mounted () {
     this.loading(true)
-    this.getCinemaList()
+    this.getSeatList()
     this.loading(false)
   },
   // // fixme 这里确认是否还需要
@@ -114,7 +119,7 @@ export default {
   // },
   methods: {
     // 请求影院列表数据
-    getCinemaList: function () {
+    getSeatList: function () {
       // mock数据
       this.$get('/mock/seatLove.json')
         .then((response) => {
@@ -253,7 +258,7 @@ export default {
       if (otherLoveSeatIndex !== null) {
         // 如果选中的是情侣座位 判断选择个数不大于 maxSelect
         if (_selectedSeatList.length >= this.maxSelect - 1) {
-          this.showSlot('最多只能选择' + this.maxSelect + '个座位哦~')
+          alert('最多只能选择' + this.maxSelect + '个座位哦~')
           return
         }
         // 改变这些座位的图标为已选择图标
@@ -268,7 +273,7 @@ export default {
       } else {
         // 如果选中的是非情侣座位 判断选择个数不大于 maxSelect
         if (_selectedSeatList.length >= this.maxSelect) {
-          this.showSlot('最多只能选择' + this.maxSelect + '个座位哦~')
+          alert('最多只能选择' + this.maxSelect + '个座位哦~')
           return
         }
         // 改变这些座位的图标为已选择图标
@@ -398,6 +403,7 @@ export default {
         display block
         height 35px
         line-height 35px
+        white-space:nowrap
     .thumbnailSeatClass
       position absolute
     .seatBox

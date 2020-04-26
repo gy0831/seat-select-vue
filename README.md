@@ -1,9 +1,34 @@
-# SeatSelect (vue移动端座位选择)
+# seat-select (vue移动端座位选择)
+
+![](https://github.com/zenghao0219/files-store/blob/master/seats/process1.png?raw=true)
+
+
+![](https://img.shields.io/github/stars/zenghao0219/seat-select.svg?style=social)
+![](https://img.shields.io/github/forks/zenghao0219/seat-select.svg?style=social)
+![](http://progressed.io/bar/100?title=completed)
+![](https://img.shields.io/badge/language-vue-green.svg)
+![](https://img.shields.io/github/package-json/dependency-version/zenghao0219/seat-select/vue.svg)
+![](https://img.shields.io/github/license/zenghao0219/seat-select.svg)
+![](https://img.shields.io/github/release/zenghao0219/seat-select.svg)
+
+### 座位图体系项目导航
+
+- [移动端 seat-select](https://github.com/zenghao0219/seat-select)
+
+- [微信小程序 seat-select-wechat](https://github.com/zenghao0219/seat-select-wechat)
+
+- [后台控制端 seat-select-controller](https://github.com/zenghao0219/seat-select-controller)
+
+- [数据接口端 seat-select-api](https://github.com/zenghao0219/seat-select-api)
+
+- [座位JSON结构解析](https://github.com/zenghao0219/seat-select/tree/master/public/mock)
+
+
 > if this project is useful to you :D , Please star this project~
 >
 > 如果这个项目对你有帮助 :D 请点个star吧~
 
-> [点击这里demo预览](https://zenghao0219.github.io/seat-select-demo/ "请使用手机访问")
+> [点击这里demo预览(请使用手机访问)](https://zenghao0219.github.io/seat-select-demo/ "请使用手机访问")
 >
 > 此次项目是基于vue编写的类似淘票票和猫眼的电影`移动端`锁座页面,经过超过百个影厅的测试,其中包含功能
 >
@@ -17,33 +42,59 @@
 > - 情侣座位的选择逻辑
 #### 项目截图
 
-<img src="https://www.xollipop.top/demo.jpg" width="200" hegiht="300"/>
+<img src="https://github.com/zenghao0219/files-store/blob/master/seats/demo.jpg?raw=true" width="200" hegiht="300"/>
+
+#### 之后的计划
+
+- 文档补全,功能实现解析
+- ~~后台控制端,可以编辑座位图提供接口生成座位图JSON(2019.06.03开发完成,参考项目导航)~~
+
+### 赞助者名单
+首先特别感谢赞助者的所有朋友们,真的特别感谢!(所有贡献者列表请在[此处](https://github.com/zenghao0219/contributors))
 
 #### 智能选座示例
 ```
 以下为多个影厅的智能选座gif图演示
 ```
-<img src="https://www.xollipop.top/soogif1.gif" width="200" hegiht="300"/>
+<img src="https://github.com/zenghao0219/files-store/blob/master/seats/soogif1.gif?raw=true" width="200" hegiht="300"/>
 
-<img src="https://www.xollipop.top/soogif2.gif" width="200" hegiht="300"/>
+<img src="https://github.com/zenghao0219/files-store/blob/master/seats/soogif2.gif?raw=true" width="200" hegiht="300"/>
 
-<img src="https://www.xollipop.top/soogif3.gif" width="200" hegiht="300"/>
+<img src="https://github.com/zenghao0219/files-store/blob/master/seats/soogif3.gif?raw=true" width="200" hegiht="300"/>
 
 #### 智能选座示例
 ```
 以下为空位检测逻辑gif图演示
 ```
-<img src="https://www.xollipop.top/soogif4.gif" width="200" hegiht="300"/>
+<img src="https://github.com/zenghao0219/files-store/blob/master/seats/soogif4.gif?raw=true" width="200" hegiht="300"/>
 
 ### 项目依赖组件
 
 该项目引用到的外部常用组件
 
-> [amfe-flexible](https://github.com/amfe/lib-flexible "阿里巴巴弹性rem布局")
+> 1. [amfe-flexible](https://github.com/amfe/lib-flexible "阿里巴巴弹性rem布局")
 >
-> [vue-touch](https://github.com/vuejs/vue-touch "vue-touch")
+> 2. [vue-touch](https://github.com/vuejs/vue-touch "vue-touch")
 >
-> [better-scroll](https://github.com/ustbhuangyi/better-scroll "better-scroll")
+> 3. [better-scroll](https://github.com/ustbhuangyi/better-scroll "better-scroll")
+>
+> 4. [px2rem-postcss](https://github.com/songsiqi/px2rem-postcss "px2rem-postcss")
+>
+> 5. [axios(不是必须,可替换成其他请求组件)](https://github.com/axios/axios "axios(不是必须,可替换成其他请求组件)")
+
+```
+*  vue-touch需要使用@next分支
+
+npm install vue-touch@next -S
+
+npm install amfe-flexible -S
+
+npm install postcss-px2rem -S
+
+npm install better-scroll -S
+
+npm install axios -S
+```
 
 ### 目录结构
 ```
@@ -76,27 +127,37 @@
 │           └── SelectedTab.vue --(已选座展示组件)
 └── router.js
 ```
-### 初始化项目 (Project setup)
+### 跑跑试试看,本地运行此项目 (Project setup,Compiles and hot-reloads for development)
 ```
-npm install
-```
+下载代码后在文件目录下运行命令
 
-### 直接运行开发环境 (Compiles and hot-reloads for development)
-```
-npm run serve
-```
+1. npm install 安装全部依赖
 
+(cnpm install 或者 yarn install)
+
+2. npm run serve 运行到开发环境
+```
 ### 项目打包 (Compiles and minifies for production)
 ```
 npm run build
 ```
 ### 讨论
 
-欢迎加群讨论: 3544395
+欢迎加群讨论: 3544395 (最近有小伙伴反应搜不到群,还有我这边接不到审核)
+
+如果搜不到的情况 加作者的个人qq 424115114 或者微信 forever_loved
+
+<img src="https://raw.githubusercontent.com/zenghao0219/files-store/master/IMG_2250.JPG" width="200" hegiht="300"/>
 
 ### 项目捐赠
 写代码不易...请作者喝杯咖啡呗?
 
-<img src="https://www.xollipop.top/code.png" width="200" hegiht="300"/>
+![](https://github.com/zenghao0219/files-store/blob/master/pay.jpeg?raw=true)
 
 (PS: 支付的时候 请带上你的名字/昵称呀 会维护一个赞助列表~ )
+
+### 其他项目
+
+最近开发了一个垃圾分类的小程序 需要的朋友可以关注以下~
+
+<img src="https://i.postimg.cc/9fgDX670/gh-15fa1fdd771b-1280.jpg" width="200" hegiht="300"/>
